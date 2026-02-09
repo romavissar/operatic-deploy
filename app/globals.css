@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-weight: 300;
+  font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Markdown content */
+.prose-markdown h1 {
+  @apply text-2xl font-light tracking-tight mt-8 mb-4;
+}
+.prose-markdown h2 {
+  @apply text-xl font-light tracking-tight mt-6 mb-3;
+}
+.prose-markdown h3 {
+  @apply text-lg font-light mt-4 mb-2;
+}
+.prose-markdown p {
+  @apply my-4 leading-relaxed;
+}
+.prose-markdown ul {
+  @apply list-disc pl-6 my-4 space-y-1;
+}
+.prose-markdown ol {
+  @apply list-decimal pl-6 my-4 space-y-1;
+}
+.prose-markdown pre {
+  @apply bg-foreground/5 p-4 rounded overflow-x-auto my-4 text-sm font-light;
+}
+.prose-markdown code {
+  @apply bg-foreground/5 px-1.5 py-0.5 rounded text-sm font-light;
+}
+.prose-markdown pre code {
+  @apply bg-transparent p-0;
+}
+.prose-markdown a {
+  @apply underline underline-offset-2 hover:opacity-70;
+}
+.prose-markdown blockquote {
+  @apply border-l-2 border-foreground/20 pl-4 my-4 italic text-muted;
+}
+.prose-markdown table {
+  @apply w-full border-collapse my-4 text-sm font-light;
+}
+.prose-markdown th,
+.prose-markdown td {
+  @apply border border-foreground/20 px-3 py-2 text-left;
+}
+.prose-markdown th {
+  @apply bg-foreground/5 font-medium;
+}
+.prose-markdown img {
+  @apply max-w-full h-auto rounded my-4;
+}
+.prose-markdown .katex {
+  @apply text-base;
+}
+
+/* Hide Clerk "Secured by Clerk" floating badge, UserButton footer, and sign-in "Secured by" */
+.cl-internal-b3fm6y,
+.cl-userButtonPopoverFooter,
+.cl-internal-uyu30o,
+.cl-internal-58nah9,
+.cl-internal-k8x5n7,
+.cl-internal-1nzuimf,
+iframe[title*="clerk"],
+a[href*="clerk.com"][target="_blank"]:has(img),
+[data-clerk-badge],
+.clerk-badge,
+[class*="clerkBadge"],
+[id*="clerk-badge"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Sign-in / Sign-up: match site font and colors */
+.cl-signIn-root,
+.cl-signUp-root,
+.cl-card,
+.cl-card * {
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.025em !important;
+}
+
+/* UserButton popover: match site font and reduce width */
+.cl-userButtonPopoverCard,
+.cl-userButton-popover,
+.cl-internal-1vi7rps {
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.025em !important;
+  max-width: 280px !important;
+  width: 280px !important;
+}
+.cl-userButtonPopoverCard *,
+.cl-userButton-popover * {
+  font-family: inherit !important;
+  font-weight: inherit !important;
+}
+
+/* User Profile modal (Manage account): same font and narrower */
+.cl-userProfile-root,
+.cl-internal-phfxlr,
+.cl-modalContent .cl-card.cl-internal-rx251b,
+.cl-internal-rx251b,
+.cl-pageScrollBox,
+.cl-internal-2tn0z0,
+.cl-navbar,
+.cl-internal-60laz0 {
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.025em !important;
+}
+.cl-userProfile-root *,
+.cl-internal-phfxlr *,
+.cl-pageScrollBox *,
+.cl-navbar * {
+  font-family: inherit !important;
+  font-weight: inherit !important;
+}
+.cl-modalContent.cl-internal-1gn8o4j {
+  max-width: 640px !important;
+  width: 100% !important;
+}
+.cl-modalContent .cl-card.cl-internal-rx251b,
+.cl-internal-rx251b {
+  max-width: 640px !important;
+  width: 100% !important;
+  display: flex !important;
+  min-height: 400px !important;
+}
+.cl-pageScrollBox,
+.cl-internal-2tn0z0 {
+  flex: 1 !important;
+  min-width: 320px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.cl-pageScrollBox > *,
+.cl-internal-2tn0z0 > * {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+/* Let the main content area (body) fill remaining space in Account modal */
+.cl-pageScrollBox > * > *:last-child,
+.cl-internal-2tn0z0 > * > *:last-child {
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+.cl-navbar,
+.cl-internal-60laz0 {
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+}
+
+/* User Profile as full page (not modal): stretch to full width */
+.user-profile-page > div,
+.user-profile-page .cl-userProfile-root,
+.user-profile-page .cl-internal-phfxlr,
+.user-profile-page .cl-card.cl-internal-rx251b,
+.user-profile-page .cl-internal-rx251b {
+  max-width: none !important;
+  width: 100% !important;
+  min-height: min(80vh, 600px) !important;
+}
+.user-profile-page .cl-modalContent.cl-internal-1gn8o4j {
+  max-width: none !important;
+  width: 100% !important;
+}
+.user-profile-page .cl-pageScrollBox,
+.user-profile-page .cl-internal-2tn0z0 {
+  flex: 1 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
