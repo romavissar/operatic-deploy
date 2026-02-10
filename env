@@ -1,0 +1,19 @@
+# Clerk (https://dashboard.clerk.com)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_cmVsZXZhbnQtZ2FubmV0LTgxLmNsZXJrLmFjY291bnRzLmRldiQ
+CLERK_SECRET_KEY=sk_test_1qFz7BfGZnI8p44bV1qR2LK88Ax7RyhUUvW3C9NvJ5
+
+# Optional: Clerk sign-in/sign-up URLs (defaults work for dev)
+# NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+# NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+# NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+# NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+
+# Supabase (https://supabase.com/dashboard)
+NEXT_PUBLIC_SUPABASE_URL=https://vfslkgwqzhicduppesbm.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmc2xrZ3dxemhpY2R1cHBlc2JtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDYyNjMxOCwiZXhwIjoyMDg2MjAyMzE4fQ.ob6_Kk7V8Dqx1248Pd_Lu3q1oWYdaHCTVcB1ZXBZoG8
+
+# Admin allowlist: comma-separated emails that can access /admin and create/edit/delete posts
+ADMIN_EMAILS="romavissar@gmail.com"
+
+RESEND_API_KEY=re_f8siYV8R_14z6fNEy2hu7uXuwsH5VAccd
+RESEND_FROM=Rom Avissar <delivered@resend.dev>

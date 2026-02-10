@@ -30,7 +30,6 @@ export default async function AdminEditPagePage({ params }: Props) {
         slug={page.slug}
         defaultTitle={page.title}
         defaultBody={page.body}
-        pageLabel={PAGE_LABELS[slug]}
       />
     </div>
   );

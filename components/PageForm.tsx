@@ -7,14 +7,12 @@ interface PageFormProps {
   slug: string;
   defaultTitle: string;
   defaultBody: string;
-  pageLabel: string;
 }
 
 export function PageForm({
   slug,
   defaultTitle,
   defaultBody,
-  pageLabel: _pageLabel,
 }: PageFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState(defaultTitle);
