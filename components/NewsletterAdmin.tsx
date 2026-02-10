@@ -17,7 +17,7 @@ export function NewsletterAdmin({
   initialSends,
   posts,
 }: NewsletterAdminProps) {
-  const [subscribers, setSubscribers] = useState(initialSubscribers);
+  const [subscribers] = useState(initialSubscribers);
   const [sends, setSends] = useState(initialSends);
   const [sendType, setSendType] = useState<"post" | "custom">("post");
   const [postId, setPostId] = useState("");

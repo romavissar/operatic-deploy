@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { formatInEET } from "@/lib/datetime";
-import { getCurrentUserEmail } from "@/lib/clerk";
 
 export type Comment = {
   id: string;

@@ -14,7 +14,7 @@ export function PageForm({
   slug,
   defaultTitle,
   defaultBody,
-  pageLabel,
+  pageLabel: _pageLabel,
 }: PageFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState(defaultTitle);

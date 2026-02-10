@@ -24,8 +24,8 @@ export async function GET(request: Request) {
   const list = comments ?? [];
   const { userId } = await auth();
 
-  let scoreByComment: Record<string, number> = {};
-  let userVoteByComment: Record<string, number> = {};
+  const scoreByComment: Record<string, number> = {};
+  const userVoteByComment: Record<string, number> = {};
   if (list.length > 0) {
     const commentIds = list.map((c) => c.id);
     const { data: votes } = await supabase
