@@ -16,7 +16,7 @@ export default async function AdminEditPage({ params }: Props) {
   if (error || !post) notFound();
   const { data: tags } = await supabase.from("tags").select("id, name").order("name");
   const { data: postTags } = await supabase.from("post_tags").select("tag_id").eq("post_id", id);
-  const defaultTagIds = (postTags ?? []).map((pt) => pt.tag_id);
+  const defaultTagIds = ((postTags ?? []) as { tag_id: string }[]).map((pt) => pt.tag_id);
 
   return (
     <div className="space-y-8">
