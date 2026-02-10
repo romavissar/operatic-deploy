@@ -20,3 +20,11 @@ export const updatePostSchema = createPostSchema.partial().extend({
 
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 export type UpdatePostInput = z.infer<typeof updatePostSchema>;
+
+const emailSchema = z.string().email("Invalid email").transform((s) => s.trim().toLowerCase());
+
+export const newsletterSubscribeSchema = z.object({
+  email: emailSchema,
+});
+
+export type NewsletterSubscribeInput = z.infer<typeof newsletterSubscribeSchema>;

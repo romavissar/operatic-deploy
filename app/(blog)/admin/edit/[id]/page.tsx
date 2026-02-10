@@ -7,6 +7,8 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminEditPage({ params }: Props) {
   const { id } = await params;
   const supabase = getSupabaseAdmin();

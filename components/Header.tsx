@@ -7,6 +7,7 @@ const nav = [
   { href: "/", label: "Home" },
   { href: "/posts", label: "Posts" },
   { href: "/about", label: "About" },
+  { href: "/newsletter", label: "Newsletter" },
 ];
 
 export async function Header() {
@@ -28,6 +29,7 @@ export async function Header() {
             <Link
               key={href}
               href={href}
+              prefetch={href === "/posts" ? false : undefined}
               className="text-foreground/80 font-light text-sm tracking-tight hover:text-foreground"
             >
               {label}

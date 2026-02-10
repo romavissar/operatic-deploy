@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { formatInEET } from "@/lib/datetime";
+import { getCurrentUserEmail } from "@/lib/clerk";
 
 export type Comment = {
   id: string;
@@ -9,6 +10,7 @@ export type Comment = {
   parent_id?: string | null;
   author_id: string;
   author_name: string;
+  author_email?: string | null;
   author_image_url: string | null;
   body: string;
   created_at: string;
@@ -35,6 +37,10 @@ function formatDateTime(iso: string): string {
 
 interface CommentItemProps {
   comment: Comment;
+  /** Display name stored on the comment when it was made */
+  displayName: string;
+  /** Profile image URL stored on the comment when it was made */
+  displayImageUrl: string | null;
   getReplies: (parentId: string) => Comment[];
   isAdmin: boolean;
   isSignedIn: boolean;
@@ -56,6 +62,8 @@ interface CommentItemProps {
 
 function CommentItem({
   comment: c,
+  displayName,
+  displayImageUrl,
   getReplies,
   isAdmin,
   isSignedIn,
@@ -76,14 +84,21 @@ function CommentItem({
 }: CommentItemProps) {
   const replies = getReplies(c.id);
   const isCollapsed = replies.length > 0 && collapsedIds.has(c.id);
+  const logged = useRef(false);
+  useEffect(() => {
+    if (!logged.current) {
+      console.log("Comment:", displayName, "—", c.body);
+      logged.current = true;
+    }
+  }, [c.id, displayName, c.body]);
   return (
     <li className={depth > 0 ? "mt-4" : ""}>
       <div className={`flex gap-4 ${depth > 0 ? "pl-6 border-l-2 border-foreground/10" : ""}`}>
         <div className="flex-shrink-0">
-          {c.author_image_url ? (
+          {displayImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={c.author_image_url}
+              src={displayImageUrl}
               alt=""
               width={40}
               height={40}
@@ -94,14 +109,14 @@ function CommentItem({
               className="w-10 h-10 rounded-full bg-foreground/20 flex items-center justify-center text-foreground/60 text-sm font-light"
               aria-hidden
             >
-              {(c.author_name || "?")[0]}
+              {(displayName || "?")[0]}
             </div>
           )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-baseline gap-2">
             <span className="font-light text-foreground text-sm">
-              {c.author_name || "Anonymous"}
+              {displayName}
             </span>
             <time className="text-xs text-foreground/60 font-light" dateTime={c.created_at}>
               {fmt(c.created_at)}
@@ -206,6 +221,8 @@ function CommentItem({
                     <CommentItem
                       key={reply.id}
                       comment={reply}
+                      displayName={reply.author_name || "Anonymous"}
+                      displayImageUrl={reply.author_image_url ?? null}
                       getReplies={getReplies}
                       isAdmin={isAdmin}
                       isSignedIn={isSignedIn}
@@ -243,6 +260,16 @@ export function CommentSection({
 }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [body, setBody] = useState("");
+
+  useEffect(() => {
+    if (!postId) return;
+    fetch(`/api/comments?postId=${encodeURIComponent(postId)}`, { credentials: "include", cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (Array.isArray(data)) setComments(data as Comment[]);
+      })
+      .catch(() => {});
+  }, [postId]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -417,6 +444,8 @@ export function CommentSection({
             <CommentItem
               key={c.id}
               comment={c}
+              displayName={c.author_name || "Anonymous"}
+              displayImageUrl={c.author_image_url ?? null}
               getReplies={getReplies}
               isAdmin={isAdmin}
               isSignedIn={isSignedIn}

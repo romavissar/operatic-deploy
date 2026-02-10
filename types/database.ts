@@ -80,6 +80,7 @@ export interface Database {
           parent_id: string | null;
           author_id: string;
           author_name: string;
+          author_email: string | null;
           author_image_url: string | null;
           body: string;
           created_at: string;
@@ -90,6 +91,7 @@ export interface Database {
           parent_id?: string | null;
           author_id: string;
           author_name?: string;
+          author_email?: string | null;
           author_image_url?: string | null;
           body: string;
           created_at?: string;
@@ -100,6 +102,7 @@ export interface Database {
           parent_id?: string | null;
           author_id?: string;
           author_name?: string;
+          author_email?: string | null;
           author_image_url?: string | null;
           body?: string;
           created_at?: string;
@@ -173,6 +176,58 @@ export interface Database {
           vote?: number;
         };
       };
+      newsletter_subscribers: {
+        Row: {
+          id: string;
+          email: string;
+          created_at: string;
+          confirmed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          created_at?: string;
+          confirmed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          created_at?: string;
+          confirmed_at?: string | null;
+        };
+      };
+      newsletter_sends: {
+        Row: {
+          id: string;
+          subject: string;
+          body_html: string | null;
+          body_text: string | null;
+          post_id: string | null;
+          scheduled_at: string | null;
+          sent_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          subject: string;
+          body_html?: string | null;
+          body_text?: string | null;
+          post_id?: string | null;
+          scheduled_at?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          subject?: string;
+          body_html?: string | null;
+          body_text?: string | null;
+          post_id?: string | null;
+          scheduled_at?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+        };
+      };
     };
   };
 }
@@ -184,3 +239,5 @@ export type Like = Database["public"]["Tables"]["likes"]["Row"];
 export type Tag = Database["public"]["Tables"]["tags"]["Row"];
 export type PostTag = Database["public"]["Tables"]["post_tags"]["Row"];
 export type CommentVote = Database["public"]["Tables"]["comment_votes"]["Row"];
+export type NewsletterSubscriber = Database["public"]["Tables"]["newsletter_subscribers"]["Row"];
+export type NewsletterSend = Database["public"]["Tables"]["newsletter_sends"]["Row"];

@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 const PAGES = [
   { slug: "home", label: "Home" },
   { slug: "about", label: "About" },

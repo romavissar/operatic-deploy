@@ -76,6 +76,13 @@ Edit `.env` and set:
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `ADMIN_EMAILS` — comma-separated emails that can access `/admin` and manage posts, e.g. `me@domain.com,other@domain.com`
 
+**Newsletter (optional):** To enable the newsletter feature (signup, send from admin, scheduled sends):
+
+- `RESEND_API_KEY` — API key from [Resend](https://resend.com) (used to send emails).
+- `RESEND_FROM` — Sender address, e.g. `Blog <newsletter@yourdomain.com>`. Resend requires a verified domain in production; for testing you can use `onboarding@resend.dev`.
+- `NEXT_PUBLIC_SITE_URL` — Full site URL (e.g. `https://yourblog.com`) used for post links in newsletters. If unset, Vercel deployments use `VERCEL_URL` automatically.
+- `CRON_SECRET` — Shared secret to protect the cron endpoint. Set a random string and pass it when invoking the cron (e.g. `Authorization: Bearer <CRON_SECRET>` or `?secret=<CRON_SECRET>`).
+
 ### 5. Seed (optional)
 
 Create two example posts:
@@ -149,3 +156,21 @@ scripts/
 - `GET /api/posts/by-slug/:slug` — Single post by slug.
 
 Validation for create/update is done with Zod in the route handlers.
+
+### Newsletter API
+
+- `POST /api/newsletter/subscribe` — Public. Body: `{ "email": "..." }`. Validates and stores the email (no double opt-in by default).
+- `GET /api/newsletter/subscribers` — Admin only. Returns list of subscribers.
+- `POST /api/newsletter/send` — Admin only. Body: `type` ("post" | "custom"), optional `post_id`, optional `subject`/`body`/`body_is_markdown`, optional `scheduled_at`. Sends now or creates a scheduled send.
+- `GET /api/newsletter/scheduled` — Admin only. Returns list of scheduled and sent newsletters.
+- `GET /api/newsletter/cron` or `POST /api/newsletter/cron` — Cron-only. Query `newsletter_sends` where `scheduled_at <= now()` and `sent_at is null`, sends each and sets `sent_at`. Secured by `CRON_SECRET` (header `Authorization: Bearer <secret>` or `x-cron-secret`, or query `?secret=`).
+
+**Cron (scheduled sends):** Call the cron endpoint on a schedule (e.g. every 5 minutes). On Vercel, add to `vercel.json`:
+
+```json
+{
+  "crons": [{ "path": "/api/newsletter/cron", "schedule": "*/5 * * * *" }]
+}
+```
+
+Vercel will send requests with a special header; you can also validate `CRON_SECRET` in the route (the route checks `Authorization`, `x-cron-secret`, or `?secret=`).

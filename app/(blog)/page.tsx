@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
+export const dynamic = "force-dynamic";
+
 const DEFAULT_HOME = {
   title: "operatic",
   body: "A minimal blog on optimization, linear programming, and decision science.",
@@ -23,6 +25,7 @@ export default async function HomePage() {
       </div>
       <Link
         href="/posts"
+        prefetch={false}
         className="inline-block text-foreground font-light underline underline-offset-2 hover:opacity-70"
       >
         Read posts →

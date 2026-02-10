@@ -180,7 +180,7 @@ export function PostForm({
           value={title}
           onChange={handleTitleChange}
           required
-          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light focus:outline-none focus:ring-1 focus:ring-foreground/30"
+          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light rounded-xl focus:outline-none focus:ring-1 focus:ring-foreground/30"
         />
       </div>
       <div>
@@ -195,7 +195,7 @@ export function PostForm({
           required
           pattern="^[a-z0-9-]+$"
           title="Lowercase letters, numbers, hyphens only"
-          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light focus:outline-none focus:ring-1 focus:ring-foreground/30"
+          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light rounded-xl focus:outline-none focus:ring-1 focus:ring-foreground/30"
         />
       </div>
       <div>
@@ -207,7 +207,7 @@ export function PostForm({
           type="datetime-local"
           value={publishedAt}
           onChange={(e) => setPublishedAt(e.target.value)}
-          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light focus:outline-none focus:ring-1 focus:ring-foreground/30"
+          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light rounded-xl focus:outline-none focus:ring-1 focus:ring-foreground/30"
         />
         <p className="text-xs text-foreground/60 mt-1">
           Use a future date to schedule. Post will go live at that time (keep Published checked).
@@ -228,7 +228,7 @@ export function PostForm({
                   type="checkbox"
                   checked={selectedTagIds.has(tag.id)}
                   onChange={() => toggleTag(tag.id)}
-                  className="border border-border"
+                  className="border border-border rounded"
                 />
                 {tag.name}
               </label>
@@ -240,12 +240,16 @@ export function PostForm({
         <label htmlFor="excerpt" className="block text-sm text-foreground/80 mb-1">
           Excerpt
         </label>
+        <p className="text-xs text-foreground/60 mb-2">
+          Markdown supported. For images with a specific size use HTML, e.g.{" "}
+          <code className="bg-foreground/10 px-1">&lt;img src=&quot;/path.jpg&quot; width=&quot;300&quot; /&gt;</code>
+        </p>
         <textarea
           id="excerpt"
           value={excerpt}
           onChange={(e) => setExcerpt(e.target.value)}
           rows={2}
-          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light focus:outline-none focus:ring-1 focus:ring-foreground/30 resize-y"
+          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light rounded-xl focus:outline-none focus:ring-1 focus:ring-foreground/30 resize-y"
         />
       </div>
       <div>
@@ -274,7 +278,7 @@ export function PostForm({
             type="button"
             disabled={uploading}
             onClick={() => document.getElementById("upload-image")?.click()}
-            className="px-3 py-1.5 text-sm border border-foreground/30 text-foreground/80 font-light hover:bg-foreground/5 disabled:opacity-50"
+            className="px-3 py-1.5 text-sm border border-foreground/30 text-foreground/80 font-light rounded-xl hover:bg-foreground/5 disabled:opacity-50"
           >
             {uploading ? "Uploading…" : "Insert image"}
           </button>
@@ -282,7 +286,7 @@ export function PostForm({
             type="button"
             disabled={uploading}
             onClick={() => document.getElementById("upload-pdf")?.click()}
-            className="px-3 py-1.5 text-sm border border-foreground/30 text-foreground/80 font-light hover:bg-foreground/5 disabled:opacity-50"
+            className="px-3 py-1.5 text-sm border border-foreground/30 text-foreground/80 font-light rounded-xl hover:bg-foreground/5 disabled:opacity-50"
           >
             {uploading ? "Uploading…" : "Attach PDF"}
           </button>
@@ -293,7 +297,7 @@ export function PostForm({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={14}
-          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light focus:outline-none focus:ring-1 focus:ring-foreground/30 resize-y font-mono text-sm"
+          className="w-full border border-border bg-background px-3 py-2 text-foreground font-light rounded-xl focus:outline-none focus:ring-1 focus:ring-foreground/30 resize-y font-mono text-sm"
         />
       </div>
       <div className="flex items-center gap-2">
@@ -302,7 +306,7 @@ export function PostForm({
           type="checkbox"
           checked={published}
           onChange={(e) => setPublished(e.target.checked)}
-          className="border border-border"
+          className="border border-border rounded"
         />
         <label htmlFor="published" className="text-sm text-foreground/80">
           Published
@@ -312,14 +316,14 @@ export function PostForm({
         <button
           type="submit"
           disabled={submitting}
-          className="px-4 py-2 border border-foreground text-foreground font-light hover:bg-foreground hover:text-background disabled:opacity-50"
+          className="px-4 py-2 border border-foreground text-foreground font-light rounded-xl hover:bg-foreground hover:text-background disabled:opacity-50"
         >
           {submitting ? "Saving…" : id ? "Update" : "Create"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/admin")}
-          className="px-4 py-2 text-foreground/80 font-light hover:text-foreground"
+          className="px-4 py-2 border border-red-600 text-red-600 font-light rounded-xl hover:text-red-700 hover:border-red-700"
         >
           Cancel
         </button>

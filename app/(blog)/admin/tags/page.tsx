@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { TagsManager } from "@/components/TagsManager";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminTagsPage() {
   const supabase = getSupabaseAdmin();
   const { data: tags } = await supabase.from("tags").select("id, name, slug").order("name");

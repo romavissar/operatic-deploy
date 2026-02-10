@@ -1,6 +1,8 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
+export const dynamic = "force-dynamic";
+
 const DEFAULT_ABOUT = {
   title: "About",
   body: `This is a minimal blog focused on operations research: optimization, linear and integer programming, and decision science.

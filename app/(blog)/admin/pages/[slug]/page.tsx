@@ -11,6 +11,8 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminEditPagePage({ params }: Props) {
   const { slug } = await params;
   if (!PAGE_LABELS[slug]) notFound();

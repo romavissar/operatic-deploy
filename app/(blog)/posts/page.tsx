@@ -2,6 +2,8 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import { getReadingTimeMinutes } from "@/lib/reading-time";
 import { PostsListWithSearch } from "@/components/PostsListWithSearch";
 
+export const dynamic = "force-dynamic";
+
 export default async function PostsPage() {
   const supabase = getSupabaseAdmin();
   const now = new Date().toISOString();

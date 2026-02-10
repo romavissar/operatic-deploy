@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { formatInEET } from "@/lib/datetime";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
@@ -36,7 +37,12 @@ function matchPost(q: string, post: PostListItem): boolean {
 }
 
 export function PostsListWithSearch({ posts }: PostsListWithSearchProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    router.refresh();
+  }, [router]);
 
   const filtered = useMemo(() => {
     return query.trim() ? posts.filter((p) => matchPost(query, p)) : posts;
@@ -97,8 +103,8 @@ export function PostsListWithSearch({ posts }: PostsListWithSearchProps) {
                   </span>
                 )}
                 {post.excerpt && (
-                  <div className="text-foreground/80 font-light mt-2 text-sm leading-relaxed [&_.prose-markdown]:text-sm [&_.prose-markdown]:font-light">
-                    <MarkdownContent content={post.excerpt} />
+                  <div className="text-foreground/80 font-light mt-2 text-sm leading-relaxed [&_.prose-markdown]:text-sm [&_.prose-markdown]:font-light [&_.prose-markdown_img]:max-w-full [&_.prose-markdown_img]:h-auto">
+                    <MarkdownContent content={post.excerpt} allowHtml />
                   </div>
                 )}
               </Link>

@@ -18,6 +18,7 @@ export function SimpleHeader() {
             <Link
               key={href}
               href={href}
+              prefetch={href === "/posts" ? false : undefined}
               className="text-foreground/80 font-light text-sm tracking-tight hover:text-foreground"
             >
               {label}

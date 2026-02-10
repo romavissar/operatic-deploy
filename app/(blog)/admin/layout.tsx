@@ -27,6 +27,9 @@ export default async function AdminLayout({
         <Link href="/admin/tags" className="text-foreground/80 hover:text-foreground">
           Tags
         </Link>
+        <Link href="/admin/newsletter" className="text-foreground/80 hover:text-foreground">
+          Newsletter
+        </Link>
         <Link href="/" className="text-foreground/80 hover:text-foreground">
           ← Site
         </Link>

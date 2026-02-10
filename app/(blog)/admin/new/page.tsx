@@ -1,6 +1,8 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { PostForm } from "@/components/PostForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminNewPage() {
   const supabase = getSupabaseAdmin();
   const { data: tags } = await supabase.from("tags").select("id, name").order("name");

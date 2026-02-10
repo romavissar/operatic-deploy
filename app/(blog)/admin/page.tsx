@@ -3,6 +3,8 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import { formatInEET } from "@/lib/datetime";
 import { DeletePostButton } from "@/components/DeletePostButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   const supabase = getSupabaseAdmin();
   const { data: posts } = await supabase.from("posts").select("id, title, slug, published, published_at").order("published_at", { ascending: false });

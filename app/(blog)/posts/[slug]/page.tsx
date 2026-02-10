@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
-import { getCurrentUserEmail } from "@/lib/clerk";
+import { getCurrentUserEmail, getUserDisplayInfo, getUserDisplayInfoByEmail } from "@/lib/clerk";
+import { unstable_noStore } from "next/cache";
 import { isAdmin } from "@/lib/auth";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { ShareButtons } from "@/components/ShareButtons";
@@ -15,7 +16,10 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function PostPage({ params }: Props) {
+  unstable_noStore();
   const { slug } = await params;
   const { userId } = await auth();
   const userEmail = await getCurrentUserEmail();
@@ -53,6 +57,54 @@ export default async function PostPage({ params }: Props) {
     );
   }
 
+  // Resolve display from Clerk: prefer lookup by comment's author_email (current name/photo), then by author_id.
+  const commentList = comments ?? [];
+  const authorEmails = [...new Set(commentList.map((c) => (c as { author_email?: string | null }).author_email).filter(Boolean) as string[])];
+  const displayByEmail = new Map<string, { name: string | null; imageUrl: string | null }>();
+  await Promise.all(
+    authorEmails.map(async (email) => {
+      const key = email.toLowerCase();
+      if (displayByEmail.has(key)) return;
+      const info = await getUserDisplayInfoByEmail(email);
+      displayByEmail.set(key, info);
+    })
+  );
+
+  const authorIds = [...new Set(commentList.map((c) => c.author_id))];
+  const authorDisplayById = new Map<string, { name: string | null; imageUrl: string | null }>();
+  const emailToDisplay = new Map<string, { name: string | null; imageUrl: string | null }>();
+  const currentUserEmail = userId ? await getCurrentUserEmail() : null;
+  const currentUserDisplay = userId ? await getUserDisplayInfo(userId) : null;
+  if (currentUserEmail && currentUserDisplay) {
+    emailToDisplay.set(currentUserEmail.toLowerCase(), { name: currentUserDisplay.name, imageUrl: currentUserDisplay.imageUrl });
+  }
+  const infos = await Promise.all(authorIds.map((id) => getUserDisplayInfo(id)));
+  authorIds.forEach((id, i) => {
+    const info = infos[i];
+    const email = info.primaryEmail?.toLowerCase() ?? null;
+    if (email && !emailToDisplay.has(email)) {
+      emailToDisplay.set(email, { name: info.name, imageUrl: info.imageUrl });
+    }
+  });
+  authorIds.forEach((id, i) => {
+    const info = infos[i];
+    const email = info.primaryEmail?.toLowerCase() ?? null;
+    const unified = (email && emailToDisplay.get(email)) ?? { name: info.name, imageUrl: info.imageUrl };
+    authorDisplayById.set(id, unified);
+  });
+  const commentsWithFreshAuthors = (commentsWithVotes as Comment[]).map((c) => {
+    const raw = c as Comment & { author_email?: string | null };
+    const byId = authorDisplayById.get(c.author_id);
+    const byEmail = raw.author_email ? displayByEmail.get(raw.author_email.toLowerCase().trim()) : null;
+    const name = byId?.name ?? byEmail?.name ?? raw.author_email ?? "Anonymous";
+    const imageUrl = byId?.imageUrl ?? byEmail?.imageUrl ?? null;
+    return {
+      ...c,
+      author_name: name,
+      author_image_url: imageUrl,
+    };
+  });
+
   const { count: likeCount } = await supabase
     .from("likes")
     .select("*", { count: "exact", head: true })
@@ -81,7 +133,7 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <article className="space-y-8">
-      <Link href="/posts" className="text-sm font-light text-foreground/60 hover:text-foreground">
+      <Link href="/posts" prefetch={false} className="text-sm font-light text-foreground/60 hover:text-foreground">
         ← Posts
       </Link>
       <header>
@@ -138,7 +190,7 @@ export default async function PostPage({ params }: Props) {
       <ShareButtons title={post.title} slug={post.slug} />
       <CommentSection
         postId={post.id}
-        initialComments={commentsWithVotes as Comment[]}
+        initialComments={commentsWithFreshAuthors}
         isAdmin={userIsAdmin}
         isSignedIn={!!userId}
       />
