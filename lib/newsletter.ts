@@ -184,11 +184,21 @@ export function buildEmailForCustom(
   return { subject, html };
 }
 
+/** Domains Resend often rejects when using test sender (e.g. onboarding@resend.dev). */
+const DISALLOWED_RECIPIENT_DOMAINS = ["example.com", "example.org", "example.net", "test.com", "localhost"];
+
+function isAllowedRecipient(email: string): boolean {
+  const domain = email.split("@")[1]?.toLowerCase();
+  if (!domain) return false;
+  return !DISALLOWED_RECIPIENT_DOMAINS.includes(domain);
+}
+
 /** Process one newsletter_send: load send, get subscribers, build content, send in batches, set sent_at. */
-export async function processNewsletterSend(sendId: string): Promise<{ ok: boolean; error?: string }> {
+export async function processNewsletterSend(sendId: string): Promise<{ ok: boolean; error?: string; recipientCount?: number; testMode?: boolean }> {
   const supabase = getSupabaseAdmin();
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM ?? "Newsletter <onboarding@resend.dev>";
+  const testTo = process.env.RESEND_TEST_TO?.trim();
   if (!apiKey) {
     return { ok: false, error: "RESEND_API_KEY not set" };
   }
@@ -206,10 +216,33 @@ export async function processNewsletterSend(sendId: string): Promise<{ ok: boole
     return { ok: true }; // already sent
   }
 
-  const emails = await getConfirmedSubscriberEmails();
+  const all = await getConfirmedSubscriberEmails();
+  const allowed = all.filter(isAllowedRecipient);
+  const emails: string[] =
+    allowed.length > 0
+      ? allowed
+      : testTo
+        ? [testTo]
+        : [];
+  if (all.length > 0 && allowed.length === 0 && !testTo) {
+    return {
+      ok: false,
+      error: "All subscribers use domains Resend rejects in test mode (e.g. example.com). Add RESEND_TEST_TO=your@email.com in .env to send a test, or add real subscriber emails.",
+    };
+  }
   if (emails.length === 0) {
     await supabase.from("newsletter_sends").update({ sent_at: new Date().toISOString() }).eq("id", sendId);
-    return { ok: true };
+    return { ok: true, recipientCount: 0 };
+  }
+
+  const isTestSender = from.includes("onboarding@resend.dev");
+  const hasExternalRecipients = emails.some((e) => !e.toLowerCase().endsWith("@resend.dev"));
+  if (isTestSender && hasExternalRecipients) {
+    return {
+      ok: false,
+      error:
+        "Resend's test sender (onboarding@resend.dev) only allows sending to @resend.dev addresses, not Gmail or other domains. To send to your subscribers: (1) Verify your domain in the Resend dashboard, (2) Set RESEND_FROM=Newsletter <newsletter@yourdomain.com> in .env. Until then, use RESEND_TEST_TO=delivered@resend.dev to send a test to Resend's test inbox.",
+    };
   }
 
   let subject: string;
@@ -252,5 +285,6 @@ export async function processNewsletterSend(sendId: string): Promise<{ ok: boole
   }
 
   await supabase.from("newsletter_sends").update({ sent_at: new Date().toISOString() }).eq("id", sendId);
-  return { ok: true };
+  const usedTestOverride = allowed.length === 0 && !!testTo;
+  return { ok: true, recipientCount: emails.length, testMode: usedTestOverride };
 }

@@ -78,7 +78,7 @@ export function NewsletterAdmin({
           setBody("");
         } else setPostId("");
       } else {
-        setSuccess("Newsletter sent.");
+        setSuccess(data.message ?? "Newsletter sent.");
         setSends((prev) => prev.map((s) => (s.id === data.send?.id ? { ...s, sent_at: data.send.sent_at } : s)));
         if (sendType === "custom") {
           setSubject("");

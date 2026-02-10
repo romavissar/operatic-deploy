@@ -75,7 +75,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: result.error ?? "Send failed" }, { status: 500 });
     }
     const { data: updated } = await supabase.from("newsletter_sends").select("sent_at").eq("id", send.id).single();
-    return NextResponse.json({ sent: true, send: { ...send, sent_at: updated?.sent_at ?? now } });
+    const message = result.testMode
+      ? `Sent to your test address (RESEND_TEST_TO). Check your inbox and spam folder. If you used delivered@resend.dev, it does not deliver to a real inbox—use your own email in RESEND_TEST_TO to receive it.`
+      : result.recipientCount != null
+        ? `Sent to ${result.recipientCount} recipient${result.recipientCount === 1 ? "" : "s"}.`
+        : undefined;
+    return NextResponse.json({ sent: true, send: { ...send, sent_at: updated?.sent_at ?? now }, message });
   }
 
   const bodyForHtml = bodyIsMarkdown ? renderMathInHtml(bodyContent) : bodyContent;
@@ -119,5 +124,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error ?? "Send failed" }, { status: 500 });
   }
   const { data: updated } = await supabase.from("newsletter_sends").select("sent_at").eq("id", send.id).single();
-  return NextResponse.json({ sent: true, send: { ...send, sent_at: updated?.sent_at ?? now } });
+  const message = result.testMode
+    ? `Sent to your test address (RESEND_TEST_TO). Check your inbox and spam folder. If you used delivered@resend.dev, it does not deliver to a real inbox—use your own email in RESEND_TEST_TO to receive it.`
+    : result.recipientCount != null
+      ? `Sent to ${result.recipientCount} recipient${result.recipientCount === 1 ? "" : "s"}.`
+      : undefined;
+  return NextResponse.json({ sent: true, send: { ...send, sent_at: updated?.sent_at ?? now }, message });
 }
