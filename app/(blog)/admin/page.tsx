@@ -2,12 +2,14 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { formatInEET } from "@/lib/datetime";
 import { DeletePostButton } from "@/components/DeletePostButton";
+import type { Post } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   const supabase = getSupabaseAdmin();
-  const { data: posts } = await supabase.from("posts").select("id, title, slug, published, published_at").order("published_at", { ascending: false });
+  const { data } = await supabase.from("posts").select("id, title, slug, published, published_at").order("published_at", { ascending: false });
+  const posts = (data ?? []) as Pick<Post, "id" | "title" | "slug" | "published" | "published_at">[];
 
   return (
     <div className="space-y-8">

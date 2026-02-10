@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { PageForm } from "@/components/PageForm";
+import type { Page } from "@/types/database";
 
 const PAGE_LABELS: Record<string, string> = {
   home: "Home",
@@ -20,6 +21,7 @@ export default async function AdminEditPagePage({ params }: Props) {
   const supabase = getSupabaseAdmin();
   const { data: page, error } = await supabase.from("pages").select("*").eq("slug", slug).single();
   if (error || !page) notFound();
+  const typedPage = page as Page;
 
   return (
     <div className="space-y-8">
@@ -27,9 +29,9 @@ export default async function AdminEditPagePage({ params }: Props) {
         Edit {PAGE_LABELS[slug]}
       </h1>
       <PageForm
-        slug={page.slug}
-        defaultTitle={page.title}
-        defaultBody={page.body}
+        slug={typedPage.slug}
+        defaultTitle={typedPage.title}
+        defaultBody={typedPage.body}
       />
     </div>
   );

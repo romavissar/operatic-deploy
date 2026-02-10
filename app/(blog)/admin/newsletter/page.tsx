@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { NewsletterAdmin } from "@/components/NewsletterAdmin";
+import type { NewsletterSubscriber, NewsletterSend, Post } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +12,9 @@ export default async function AdminNewsletterPage() {
     supabase.from("newsletter_sends").select("id, subject, post_id, scheduled_at, sent_at, created_at").order("created_at", { ascending: false }),
     supabase.from("posts").select("id, title, slug").eq("published", true).lte("published_at", now).order("published_at", { ascending: false }),
   ]);
-  const subscribers = subsRes.data ?? [];
-  const sends = sendsRes.data ?? [];
-  const posts = postsRes.data ?? [];
+  const subscribers = (subsRes.data ?? []) as NewsletterSubscriber[];
+  const sends = (sendsRes.data ?? []) as NewsletterSend[];
+  const posts = (postsRes.data ?? []) as Pick<Post, "id" | "title" | "slug">[];
 
   return (
     <div className="space-y-10">

@@ -1,8 +1,11 @@
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { getReadingTimeMinutes } from "@/lib/reading-time";
 import { PostsListWithSearch } from "@/components/PostsListWithSearch";
+import type { Post } from "@/types/database";
 
 export const dynamic = "force-dynamic";
+
+type PostRow = Pick<Post, "id" | "title" | "slug" | "published_at" | "excerpt" | "published" | "author_name" | "author_email" | "content">;
 
 export default async function PostsPage() {
   const supabase = getSupabaseAdmin();
@@ -14,19 +17,21 @@ export default async function PostsPage() {
     .lte("published_at", now)
     .order("published_at", { ascending: false });
   const { data: rawPosts } = await query;
-  const postIds = (rawPosts ?? []).map((p) => p.id);
+  const postsList = (rawPosts ?? []) as PostRow[];
+  const postIds = postsList.map((p) => p.id);
   const likeCountByPost: Record<string, number> = {};
   const tagsByPostId: Record<string, { id: string; name: string }[]> = {};
   if (postIds.length > 0) {
     const { data: likes } = await supabase.from("likes").select("post_id").in("post_id", postIds);
-    (likes ?? []).forEach(({ post_id }) => {
+    ((likes ?? []) as { post_id: string }[]).forEach(({ post_id }) => {
       likeCountByPost[post_id] = (likeCountByPost[post_id] ?? 0) + 1;
     });
     const { data: postTags } = await supabase.from("post_tags").select("post_id, tag_id").in("post_id", postIds);
-    const tagIds = [...new Set((postTags ?? []).map((pt) => pt.tag_id))];
+    const postTagsList = (postTags ?? []) as { post_id: string; tag_id: string }[];
+    const tagIds = [...new Set(postTagsList.map((pt) => pt.tag_id))];
     const { data: tags } = await supabase.from("tags").select("id, name").in("id", tagIds);
-    const tagMap = new Map((tags ?? []).map((t) => [t.id, t]));
-    (postTags ?? []).forEach(({ post_id, tag_id }) => {
+    const tagMap = new Map(((tags ?? []) as { id: string; name: string }[]).map((t) => [t.id, t]));
+    postTagsList.forEach(({ post_id, tag_id }) => {
       const tag = tagMap.get(tag_id);
       if (tag) {
         if (!tagsByPostId[post_id]) tagsByPostId[post_id] = [];
@@ -34,7 +39,7 @@ export default async function PostsPage() {
       }
     });
   }
-  const posts = (rawPosts ?? []).map(({ content, ...post }) => ({
+  const posts = postsList.map(({ content, ...post }) => ({
     id: post.id,
     title: post.title,
     slug: post.slug,

@@ -11,6 +11,7 @@ import { LikeButton } from "@/components/LikeButton";
 import { CommentSection, type Comment } from "@/components/CommentSection";
 import { getReadingTimeMinutes } from "@/lib/reading-time";
 import { formatInEET } from "@/lib/datetime";
+import type { Post } from "@/types/database";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -27,13 +28,14 @@ export default async function PostPage({ params }: Props) {
   const supabase = getSupabaseAdmin();
   const { data: post, error } = await supabase.from("posts").select("*").eq("slug", slug).single();
   if (error || !post) notFound();
-  const isLive = post.published && new Date(post.published_at) <= new Date();
-  if (!userIsAdmin && (!post.published || !isLive)) notFound();
+  const typedPost = post as Post;
+  const isLive = typedPost.published && new Date(typedPost.published_at) <= new Date();
+  if (!userIsAdmin && (!typedPost.published || !isLive)) notFound();
 
   const { data: comments } = await supabase
     .from("comments")
     .select("*")
-    .eq("post_id", post.id)
+    .eq("post_id", typedPost.id)
     .order("created_at", { ascending: true });
 
   const commentIds = (comments ?? []).map((c) => c.id);
@@ -108,28 +110,28 @@ export default async function PostPage({ params }: Props) {
   const { count: likeCount } = await supabase
     .from("likes")
     .select("*", { count: "exact", head: true })
-    .eq("post_id", post.id);
+    .eq("post_id", typedPost.id);
   let userLiked = false;
   if (userId) {
     const { data: userLike } = await supabase
       .from("likes")
       .select("id")
-      .eq("post_id", post.id)
+      .eq("post_id", typedPost.id)
       .eq("user_id", userId)
       .maybeSingle();
     userLiked = !!userLike;
   }
 
-  const { data: postTags } = await supabase.from("post_tags").select("tag_id").eq("post_id", post.id);
-  const tagIds = (postTags ?? []).map((pt) => pt.tag_id);
+  const { data: postTags } = await supabase.from("post_tags").select("tag_id").eq("post_id", typedPost.id);
+  const tagIds = ((postTags ?? []) as { tag_id: string }[]).map((pt) => pt.tag_id);
   let postTagsList: { id: string; name: string }[] = [];
   if (tagIds.length > 0) {
     const { data: tags } = await supabase.from("tags").select("id, name").in("id", tagIds);
-    postTagsList = tags ?? [];
+    postTagsList = (tags ?? []) as { id: string; name: string }[];
   }
 
-  const readingMinutes = getReadingTimeMinutes(post.content);
-  const publishedAt = post.published_at ? new Date(post.published_at) : null;
+  const readingMinutes = getReadingTimeMinutes(typedPost.content);
+  const publishedAt = typedPost.published_at ? new Date(typedPost.published_at) : null;
 
   return (
     <article className="space-y-8">
@@ -138,7 +140,7 @@ export default async function PostPage({ params }: Props) {
       </Link>
       <header>
         <h1 className="text-3xl font-light tracking-tight text-foreground">
-          {post.title}
+          {typedPost.title}
         </h1>
         <div className="text-sm text-foreground/60 font-light mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
           {publishedAt && (
@@ -158,9 +160,9 @@ export default async function PostPage({ params }: Props) {
           )}
           <span>{readingMinutes} min read</span>
         </div>
-        {(post.author_name ?? post.author_email) && (
+        {(typedPost.author_name ?? typedPost.author_email) && (
           <span className="text-sm text-foreground/60 font-light mt-1 block">
-            {post.author_name ?? post.author_email}
+            {typedPost.author_name ?? typedPost.author_email}
           </span>
         )}
         {postTagsList.length > 0 && (
@@ -177,19 +179,19 @@ export default async function PostPage({ params }: Props) {
         )}
       </header>
       <div className="font-light leading-relaxed">
-        <MarkdownContent content={post.content} />
+        <MarkdownContent content={typedPost.content} />
       </div>
       <div className="flex flex-wrap items-center gap-6">
         <LikeButton
-          postId={post.id}
+          postId={typedPost.id}
           initialCount={likeCount ?? 0}
           initialLiked={userLiked}
           isSignedIn={!!userId}
         />
       </div>
-      <ShareButtons title={post.title} slug={post.slug} />
+      <ShareButtons title={typedPost.title} slug={typedPost.slug} />
       <CommentSection
-        postId={post.id}
+        postId={typedPost.id}
         initialComments={commentsWithFreshAuthors}
         isAdmin={userIsAdmin}
         isSignedIn={!!userId}

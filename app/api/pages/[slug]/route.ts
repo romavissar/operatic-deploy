@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { getCurrentUserEmail } from "@/lib/clerk";
 import { isAdmin } from "@/lib/auth";
+import type { Page } from "@/types/database";
 
 export async function GET(
   _request: Request,
@@ -14,7 +15,7 @@ export async function GET(
   if (error || !data) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json(data);
+  return NextResponse.json(data as Page);
 }
 
 export async function PUT(
@@ -50,5 +51,5 @@ export async function PUT(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json(data);
+  return NextResponse.json(data as Page);
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { isAdmin } from "@/lib/auth";
 import { getCurrentUserEmail } from "@/lib/clerk";
+import type { Post } from "@/types/database";
 
 export async function GET(
   _request: Request,
@@ -16,8 +17,9 @@ export async function GET(
   if (error || !data) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  if (!data.published && !userIsAdmin) {
+  const post = data as Post;
+  if (!post.published && !userIsAdmin) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json(data);
+  return NextResponse.json(post);
 }

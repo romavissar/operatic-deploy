@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase";
 import { isAdmin } from "@/lib/auth";
 import { getCurrentUserEmail } from "@/lib/clerk";
 import { updatePostSchema } from "@/lib/validations";
+import type { Post } from "@/types/database";
 
 export async function GET(
   _request: Request,
@@ -18,11 +19,12 @@ export async function GET(
   if (error || !data) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  const isLive = data.published && new Date(data.published_at) <= new Date();
-  if (!userIsAdmin && (!data.published || !isLive)) {
+  const post = data as Post;
+  const isLive = post.published && new Date(post.published_at) <= new Date();
+  if (!userIsAdmin && (!post.published || !isLive)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  return NextResponse.json(data);
+  return NextResponse.json(post);
 }
 
 export async function PUT(
@@ -59,14 +61,15 @@ export async function PUT(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  if (parsed.data.tag_ids !== undefined && data) {
+  const updated = data as Post | null;
+  if (parsed.data.tag_ids !== undefined && updated) {
     await supabase.from("post_tags").delete().eq("post_id", id);
     const tagIds = Array.isArray(parsed.data.tag_ids) ? parsed.data.tag_ids : [];
     if (tagIds.length > 0) {
       await supabase.from("post_tags").insert(tagIds.map((tag_id) => ({ post_id: id, tag_id })));
     }
   }
-  return NextResponse.json(data);
+  return NextResponse.json(updated);
 }
 
 export async function DELETE(
