@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { unstable_noStore } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
@@ -10,6 +11,7 @@ const DEFAULT_HOME = {
 };
 
 export default async function HomePage() {
+  unstable_noStore();
   const supabase = getSupabaseAdmin();
   const { data: page } = await supabase.from("pages").select("title, body").eq("slug", "home").single() as { data: { title: string; body: string } | null };
   const title = page?.title ?? DEFAULT_HOME.title;

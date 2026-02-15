@@ -1,3 +1,4 @@
+import { unstable_noStore } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
@@ -11,6 +12,7 @@ Built with Next.js, Clerk, and Supabase. Black and white, thin type, no clutter.
 };
 
 export default async function AboutPage() {
+  unstable_noStore();
   const supabase = getSupabaseAdmin();
   const { data: page } = await supabase.from("pages").select("title, body").eq("slug", "about").single() as { data: { title: string; body: string } | null };
   const title = page?.title ?? DEFAULT_ABOUT.title;
