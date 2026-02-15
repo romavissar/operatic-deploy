@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const CANONICAL_SITE_URL = "https://www.operatic.net";
+
 interface ShareButtonsProps {
   title: string;
   slug: string;
@@ -12,7 +14,7 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
 
   const getUrl = () => {
     if (typeof window !== "undefined") {
-      return `${window.location.origin}/posts/${slug}`;
+      return `${CANONICAL_SITE_URL}/posts/${slug}`;
     }
     return "";
   };

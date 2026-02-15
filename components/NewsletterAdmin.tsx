@@ -30,6 +30,7 @@ export function NewsletterAdmin({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [testSubmitting, setTestSubmitting] = useState(false);
 
   const submitSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +91,54 @@ export function NewsletterAdmin({
       setError("Something went wrong");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const submitTest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setTestSubmitting(true);
+    try {
+      const payload: Record<string, unknown> = {
+        type: sendType,
+        test: true,
+      };
+      if (sendType === "post") {
+        if (!postId) {
+          setError("Select a post");
+          return;
+        }
+        payload.post_id = postId;
+      } else {
+        if (!subject.trim()) {
+          setError("Subject is required");
+          return;
+        }
+        if (!body.trim()) {
+          setError("Body is required");
+          return;
+        }
+        payload.subject = subject.trim();
+        payload.body = body.trim();
+        payload.body_is_markdown = bodyIsMarkdown;
+      }
+      const res = await fetch("/api/newsletter/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "Test send failed");
+        return;
+      }
+      setSuccess(data.message ?? "Test sent to romavissar@gmail.com.");
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setTestSubmitting(false);
     }
   };
 
@@ -283,14 +332,23 @@ export function NewsletterAdmin({
               )}
             </div>
           </div>
-          <div>
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || testSubmitting}
               className="px-4 py-2 border border-foreground text-foreground font-light rounded-xl hover:bg-foreground hover:text-background disabled:opacity-50"
             >
               {submitting ? "Sending…" : sendNow ? "Send now" : "Schedule"}
             </button>
+            <button
+              type="button"
+              onClick={submitTest}
+              disabled={submitting || testSubmitting}
+              className="px-4 py-2 border border-foreground/50 text-foreground/80 font-light rounded-xl hover:bg-foreground/10 disabled:opacity-50"
+            >
+              {testSubmitting ? "Sending test…" : "Send test"}
+            </button>
+            <span className="text-sm text-foreground/60 font-light">Test goes to romavissar@gmail.com only.</span>
           </div>
         </form>
       </section>

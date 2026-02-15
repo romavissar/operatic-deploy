@@ -108,15 +108,11 @@ export function renderMathInHtml(str: string): string {
   return out;
 }
 
-/** Base URL for the site (newsletter post links). Prefers NEXT_PUBLIC_SITE_URL; on Vercel falls back to operatic.net when unset. */
+const CANONICAL_SITE_URL = "https://www.operatic.net";
+
+/** Base URL for the site (newsletter post links). Always operatic.net. */
 export function getSiteUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
-  }
-  if (process.env.VERCEL_URL) {
-    return "https://www.operatic.net";
-  }
-  return "http://localhost:3000";
+  return CANONICAL_SITE_URL;
 }
 
 /** Returns only subscribers that are confirmed (or all if not using double opt-in). */
@@ -186,6 +182,62 @@ export function buildEmailForCustom(
 </body>
 </html>`;
   return { subject, html };
+}
+
+const TEST_NEWSLETTER_EMAIL = "romavissar@gmail.com";
+
+export type TestNewsletterPayload =
+  | { type: "post"; post_id: string }
+  | { type: "custom"; subject: string; body: string; body_is_markdown: boolean };
+
+/** Send a test newsletter to romavissar@gmail.com only. No DB record. */
+export async function sendTestNewsletter(
+  payload: TestNewsletterPayload
+): Promise<{ ok: boolean; error?: string }> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM ?? "Newsletter <onboarding@resend.dev>";
+  if (!apiKey) {
+    return { ok: false, error: "RESEND_API_KEY not set" };
+  }
+
+  const supabase = getSupabaseAdmin();
+  let subject: string;
+  let html: string;
+
+  if (payload.type === "post") {
+    const { data: post, error: postError } = await supabase
+      .from("posts")
+      .select("*")
+      .eq("id", payload.post_id)
+      .single();
+    if (postError || !post) {
+      return { ok: false, error: postError?.message ?? "Post not found" };
+    }
+    const postUrl = `${getSiteUrl()}/posts/${(post as Post).slug}`;
+    const built = buildEmailForPost(post as Post, postUrl);
+    subject = built.subject;
+    html = built.html;
+  } else {
+    const built = buildEmailForCustom(
+      payload.subject,
+      payload.body,
+      payload.body_is_markdown
+    );
+    subject = built.subject;
+    html = built.html;
+  }
+
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({
+    from,
+    to: [TEST_NEWSLETTER_EMAIL],
+    subject,
+    html,
+  });
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+  return { ok: true };
 }
 
 /** Domains Resend often rejects when using test sender (e.g. onboarding@resend.dev). */

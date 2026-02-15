@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getCurrentUserEmail } from "@/lib/clerk";
 import { isAdmin } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase";
-import { processNewsletterSend, renderMathInHtml } from "@/lib/newsletter";
+import { processNewsletterSend, renderMathInHtml, sendTestNewsletter } from "@/lib/newsletter";
 import { marked } from "marked";
 
 export async function POST(request: Request) {
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
+  const isTest = Boolean(body.test);
   const type = body.type === "custom" ? "custom" : "post";
   const postId = type === "post" ? body.post_id : undefined;
   const subject = type === "custom" ? body.subject : undefined;
@@ -30,6 +31,26 @@ export async function POST(request: Request) {
   if (type === "custom") {
     if (!subject?.trim()) return NextResponse.json({ error: "subject required for custom send" }, { status: 400 });
     if (!bodyContent?.trim()) return NextResponse.json({ error: "body required for custom send" }, { status: 400 });
+  }
+
+  if (isTest) {
+    const payload =
+      type === "post"
+        ? { type: "post" as const, post_id: postId! }
+        : {
+            type: "custom" as const,
+            subject: subject!,
+            body: bodyContent!,
+            body_is_markdown: Boolean(bodyIsMarkdown),
+          };
+    const result = await sendTestNewsletter(payload);
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error ?? "Test send failed" }, { status: 500 });
+    }
+    return NextResponse.json({
+      test: true,
+      message: `Test newsletter sent to ${"romavissar@gmail.com"}.`,
+    });
   }
 
   const supabase = getSupabaseAdmin();
