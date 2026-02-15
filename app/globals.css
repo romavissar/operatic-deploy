@@ -98,6 +98,20 @@ a[href*="clerk.com"][target="_blank"]:has(img),
   letter-spacing: 0.025em !important;
 }
 
+/* Mobile UserButton: layout and full name on one line (order set by MobileUserButton.tsx) */
+.mobile-user-button .cl-userButtonTrigger,
+.mobile-user-button [class*="userButtonTrigger"] {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}
+.mobile-user-button .cl-userButtonTrigger span,
+.mobile-user-button .cl-userButtonTrigger [class*="identifier"],
+.mobile-user-button [class*="userButtonTrigger"] span,
+.mobile-user-button [class*="userButtonTrigger"] [class*="identifier"] {
+  white-space: nowrap !important;
+}
+
 /* UserButton popover: match site font and reduce width */
 .cl-userButtonPopoverCard,
 .cl-userButton-popover,

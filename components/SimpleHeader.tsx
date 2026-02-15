@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MobileNav } from "@/components/MobileNav";
 
 const nav = [
   { href: "/", label: "Home" },
@@ -13,7 +14,7 @@ export function SimpleHeader() {
         <Link href="/" className="text-foreground font-light text-lg tracking-tight hover:opacity-70">
           operatic
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-6">
           {nav.map(({ href, label }) => (
             <Link
               key={href}
@@ -25,6 +26,7 @@ export function SimpleHeader() {
             </Link>
           ))}
         </nav>
+        <MobileNav nav={nav} />
       </div>
     </header>
   );

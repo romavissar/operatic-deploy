@@ -2,6 +2,8 @@ import Link from "next/link";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { getCurrentUserEmail } from "@/lib/clerk";
 import { isAdmin } from "@/lib/auth";
+import { MobileNav } from "@/components/MobileNav";
+import { MobileUserButton } from "@/components/MobileUserButton";
 
 const nav = [
   { href: "/", label: "Home" },
@@ -24,7 +26,7 @@ export async function Header() {
         <Link href="/" className="text-foreground font-light text-lg tracking-tight hover:opacity-70">
           operatic
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-6">
           {nav.map(({ href, label }) => (
             <Link
               key={href}
@@ -63,6 +65,18 @@ export async function Header() {
             />
           </SignedIn>
         </nav>
+        <MobileNav nav={nav} userIsAdmin={userIsAdmin}>
+          <SignedOut>
+            <SignInButton forceRedirectUrl="/" afterSignInUrl="/">
+              <button className="w-full text-left py-3 px-3 text-foreground/80 font-light text-sm hover:text-foreground hover:bg-foreground/5 rounded-lg">
+                Sign in
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <MobileUserButton />
+          </SignedIn>
+        </MobileNav>
       </div>
     </header>
   );
