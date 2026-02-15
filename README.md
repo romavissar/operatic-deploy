@@ -82,7 +82,7 @@ Edit `.env` and set:
 
 - `RESEND_API_KEY` — API key from [Resend](https://resend.com) (used to send emails).
 - `RESEND_FROM` — Sender address, e.g. `Blog <newsletter@yourdomain.com>`. Resend requires a verified domain in production; for testing you can use `onboarding@resend.dev`.
-- `NEXT_PUBLIC_SITE_URL` — Full site URL (e.g. `https://yourblog.com`) used for post links in newsletters. If unset, Vercel deployments use `VERCEL_URL` automatically.
+- `NEXT_PUBLIC_SITE_URL` — Full site URL (e.g. `https://www.operatic.net`) used for post links in newsletters. If unset on Vercel, links use `https://www.operatic.net`; set this if you use a different domain.
 - `CRON_SECRET` — Shared secret to protect the cron endpoint. Set a random string and pass it when invoking the cron (e.g. `Authorization: Bearer <CRON_SECRET>` or `?secret=<CRON_SECRET>`).
 
 ### 5. Seed (optional)

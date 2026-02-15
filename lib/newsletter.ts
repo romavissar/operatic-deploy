@@ -108,11 +108,15 @@ export function renderMathInHtml(str: string): string {
   return out;
 }
 
+/** Base URL for the site (newsletter post links). Prefers NEXT_PUBLIC_SITE_URL; on Vercel falls back to operatic.net when unset. */
 export function getSiteUrl(): string {
-  const url =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
-  return url || "http://localhost:3000";
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+  }
+  if (process.env.VERCEL_URL) {
+    return "https://www.operatic.net";
+  }
+  return "http://localhost:3000";
 }
 
 /** Returns only subscribers that are confirmed (or all if not using double opt-in). */
