@@ -17,7 +17,8 @@ export function NewsletterAdmin({
   initialSends,
   posts,
 }: NewsletterAdminProps) {
-  const [subscribers] = useState(initialSubscribers);
+  const [subscribers, setSubscribers] = useState(initialSubscribers);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [sends, setSends] = useState(initialSends);
   const [sendType, setSendType] = useState<"post" | "custom">("post");
   const [postId, setPostId] = useState("");
@@ -92,6 +93,28 @@ export function NewsletterAdmin({
     }
   };
 
+  const removeSubscriber = async (id: string) => {
+    if (!confirm("Remove this subscriber from the newsletter?")) return;
+    setRemovingId(id);
+    try {
+      const res = await fetch(`/api/newsletter/subscribers/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Failed to remove subscriber");
+        return;
+      }
+      setSubscribers((prev) => prev.filter((s) => s.id !== id));
+      setError(null);
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
   return (
     <div className="space-y-10">
       {/* Subscribers */}
@@ -107,12 +130,13 @@ export function NewsletterAdmin({
                 <th className="text-left py-2 px-3 text-foreground/80">Email</th>
                 <th className="text-left py-2 px-3 text-foreground/80">Signed up</th>
                 <th className="text-left py-2 px-3 text-foreground/80">Status</th>
+                <th className="text-right py-2 px-3 text-foreground/80">Actions</th>
               </tr>
             </thead>
             <tbody>
               {subscribers.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-4 px-3 text-foreground/60">
+                  <td colSpan={4} className="py-4 px-3 text-foreground/60">
                     No subscribers yet.
                   </td>
                 </tr>
@@ -125,6 +149,16 @@ export function NewsletterAdmin({
                     </td>
                     <td className="py-2 px-3 text-foreground/80">
                       {s.confirmed_at ? "Confirmed" : "Pending"}
+                    </td>
+                    <td className="py-2 px-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => removeSubscriber(s.id)}
+                        disabled={removingId === s.id}
+                        className="text-sm text-foreground/70 hover:text-red-600 disabled:opacity-50 font-light"
+                      >
+                        {removingId === s.id ? "Removing…" : "Remove"}
+                      </button>
                     </td>
                   </tr>
                 ))
