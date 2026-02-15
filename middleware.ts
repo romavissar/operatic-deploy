@@ -2,11 +2,13 @@ import { authMiddleware } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 const clerkAuth = authMiddleware({
+  signInUrl: "/sign-in?after_sign_in_url=%2F&redirect_url=%2F",
   publicRoutes: [
     "/",
     "/posts",
     "/posts/(.*)",
     "/about",
+    "/newsletter",
     "/api/(.*)",
     "/sign-in",
     "/sign-in/(.*)",

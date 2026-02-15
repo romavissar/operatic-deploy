@@ -32,7 +32,8 @@ npm install
 2. In the app, open **API Keys** and copy:
    - **Publishable key** → `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
    - **Secret key** → `CLERK_SECRET_KEY`
-3. Under **Paths**, ensure Sign-in and Sign-up paths are set (e.g. `/sign-in`, `/sign-up`). Clerk uses **cookies** for sessions by default; no extra config needed for cookie-based auth.
+3. Under **Paths**, set Sign-in and Sign-up to your app paths (e.g. `/sign-in`, `/sign-up`) and set the application URL to your domain (e.g. `https://www.operatic.net`) so redirects go to your site, not Clerk’s hosted domain.
+4. In **Environment variables** (or `.env`), set `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in` (and optionally `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up`) so Clerk uses your app’s sign-in/sign-up pages instead of the hosted Account Portal.
 
 ### 3. Supabase
 
@@ -72,6 +73,7 @@ Edit `.env` and set:
 
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 - `CLERK_SECRET_KEY`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in` — use your app’s sign-in page so redirects stay on your domain (e.g. `yoursite.com/sign-in`), not Clerk’s hosted URL
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `ADMIN_EMAILS` — comma-separated emails that can access `/admin` and manage posts, e.g. `me@domain.com,other@domain.com`
